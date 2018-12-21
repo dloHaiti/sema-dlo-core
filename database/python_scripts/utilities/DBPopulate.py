@@ -128,7 +128,7 @@ class DBPopulate:
 
     """ Add a customer for safe water networ"""
     def populate_customer_swn(self, kiosk_name, customer_type, sales_channel, customer_name, created_date, updated_date,
-                               phone, income, gender, distance):
+                               phone, address, gps, consumerBase, dueAmount, active):
         cursor = self.connection.cursor()
         guid = str(uuid.uuid1())
         cursor.execute("SELECT * FROM kiosk WHERE name = %s", (kiosk_name,))
@@ -150,12 +150,12 @@ class DBPopulate:
 
                 cursor.execute("INSERT INTO customer_account "
                                "(created_at, updated_at, name, customer_type_id, sales_channel_id, "
-                               "kiosk_id, address_line1, gps_coordinates, phone_number, id, income_level, gender, distance) "
+                               "kiosk_id, address_line1, gps_coordinates, phone_number, id, consumer_base, due_amount, active) "
                                "VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)",
                                (created_date, updated_date, customer_name, ct_rows[0][0], sales_channel_rows[0][0],
-                                kiosk_rows[0][0], "test_address", "gps", phone, guid, income, gender, distance))
+                                kiosk_rows[0][0], address, gps, phone, guid, consumerBase, dueAmount, active))
                 self.connection.commit()
-                newId = cursor.lastrowid
+                newId = guid
                 print("Customer", customer_name, 'added')
             except mysql.connector.Error as err:
                 print('failed to add Customer', customer_name, err)
@@ -295,7 +295,7 @@ class DBPopulate:
                                     customer_amount, payment_mode, kiosk_id, payment_type,
                                     sales_channel_id, total, total_gallons))
                 except Exception as e:
-                    print( e.message)
+                    print( str(e))
 
                 self.connection.commit()
                 print("Receipt", created_date, 'added')
@@ -339,7 +339,7 @@ class DBPopulate:
                                     sales_channel_id, customer_type_id, total, cogs, guid,
                                     amountCash, amountCard, amountMobile))
                 except Exception as e:
-                    print(e.message)
+                    print(str(e))
 
                 self.connection.commit()
                 print("Receipt", id, 'added')
@@ -380,7 +380,9 @@ class DBPopulate:
                                     kioskId, paymentType, salesChannelId, customer_type_id, total, cogs, guid ))
 
                 except Exception as e:
-                    print(e.message)
+                    print(str(e))
+                    print('failed to add receipt for', id, customerAccountId, str(e))
+
 
                 self.connection.commit()
                 newId = cursor.lastrowid
@@ -430,7 +432,7 @@ class DBPopulate:
                                     priceTotal, quantity, receipt_id,
                                     product_id, cogsTotal ))
                 except Exception as e:
-                    print(e.message)
+                    print(str(e))
 
                 self.connection.commit()
                 print("Receipt_line_item", receipt_id, 'added')

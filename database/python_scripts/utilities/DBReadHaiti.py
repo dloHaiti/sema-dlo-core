@@ -46,7 +46,7 @@ class DBReadHaiti:
         cursor.execute("SELECT id, name, region_id FROM kiosk")
         rows = cursor.fetchall()
         for row in rows:
-            kiosks[row[0]] = {"id": row[0], "name": row[1], "region": regions[row[2]]}
+            kiosks[row[0]] = {"id": row[0], "name": row[1], "region": regions[row[2]]['name']}
         cursor.close()
         return kiosks
 
@@ -72,6 +72,18 @@ class DBReadHaiti:
 
         cursor.close()
         return sales_channels
+
+    """ Get all sales_channel_customer_accounts  """
+    def read_customer_channel_mappings(self):
+        mappings = {}
+        cursor = self.connection.cursor()
+        cursor.execute("SELECT customer_account_id, sales_channel_id FROM sales_channel_customer_accounts")
+        rows = cursor.fetchall()
+        for row in rows:
+             mappings[row[0]] = {"customerId": row[0], "salesChannelId": row[1]}
+
+        cursor.close()
+        return mappings
 
     """ Get all product categories  """
     def read_product_categories(self):
@@ -101,11 +113,11 @@ class DBReadHaiti:
         return products
 
     """ Get all customers  """
-    def read_customers(self):
+    def read_customers(self, specificKioskId):
         customers = {}
         cursor = self.connection.cursor()
         cursor.execute("SELECT id, address, contact_name, customer_type_id, due_amount, gps_coordinates, kiosk_id," 
-                       "phone_number, active, serviceable_customer_base FROM customer_account")
+                       "phone_number, active, serviceable_customer_base FROM customer_account WHERE kiosk_id = %s", (specificKioskId,))
         rows = cursor.fetchall()
         for row in rows:
             customers[row[0]] = {"id":row[0], "address": row[1], "contact_name": row[2], "customer_type_id":row[3],
@@ -115,11 +127,11 @@ class DBReadHaiti:
         cursor.close()
         return customers
 
-    def read_receipts(self, after):
+    def read_receipts(self, specificKioskId):
         receipts = {}
         cursor = self.connection.cursor()
         cursor.execute("SELECT id, created_date, currency_code, customer_account_id, customer_amount, kiosk_id," 
-                       "payment_mode, payment_type, sales_channel_id, total, total_gallons FROM receipt WHERE created_date > %s", (after,))
+                       "payment_mode, payment_type, sales_channel_id, total, total_gallons FROM receipt WHERE kiosk_id = %s", (specificKioskId,))
         rows = cursor.fetchall()
         for row in rows:
             receipts[row[0]] = {"id":row[0], "created_date":row[1], "currency_code": row[2], "customer_account_id": row[3], "customer_amount":row[4],
