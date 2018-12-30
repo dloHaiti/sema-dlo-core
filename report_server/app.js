@@ -29,6 +29,7 @@ var sema_units = require('./routes/sema_units');
 var sema_water_chart = require('./routes/sema_water_chart');
 var sema_water_summary = require('./routes/sema_water_summary');
 
+const sema_device = require('./routes/sema_device');
 var sema_users = require('./routes/sema_user');
 var sema_admin_products = require('./routes/sema_api/sema_products');
 const sema_product_categories = require('./routes/sema_api/product_category');
@@ -98,6 +99,8 @@ app.use('/sema/dashboard/site/sales-summary/', sema_sales_ex);
 app.use('/sema/measure-units/', sema_units);
 app.use('/sema/dashboard/site/water-chart/', sema_water_chart);
 app.use('/sema/dashboard/site/water-summary/', sema_water_summary);
+
+app.use('/sema/device', isAuthenticated, sema_device);
 
 app.use('/sema/users', isAuthenticated, sema_users);
 app.use('/sema/admin/products', isAuthenticated, sema_admin_products);
